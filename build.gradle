@@ -59,5 +59,6 @@ repositories {
 dependencies {
 	// Any external dependencies added here will automatically be copied to the lib/ directory when
 	// this extension is built.
-	implementation 'com.github.Vatuu:discord-rpc:1.6.2'
+	//implementation 'com.github.Vatuu:discord-rpc:1.6.2'
+    runtimeOnly fileTree('libs') { include '*.jar' }
 }

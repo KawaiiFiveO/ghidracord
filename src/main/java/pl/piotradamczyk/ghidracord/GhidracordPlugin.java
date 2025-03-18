@@ -1,17 +1,20 @@
 package pl.piotradamczyk.ghidracord;
 
 import ghidra.app.plugin.ProgramPlugin;
+import ghidra.framework.client.RepositoryAdapter;
+import ghidra.framework.model.Project;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
-import ghidra.program.model.address.Address;
-import ghidra.program.model.listing.Function;
-import ghidra.program.model.listing.FunctionManager;
+//import ghidra.program.model.address.Address;
+//import ghidra.program.model.listing.Function;
+//import ghidra.program.model.listing.FunctionManager;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import net.arikia.dev.drpc.DiscordEventHandlers;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
+
 
 //@formatter:off
 @PluginInfo(
@@ -52,28 +55,44 @@ public class GhidracordPlugin extends ProgramPlugin {
     }
 
     private void updatePresenceInfo() {
-        Program currentProgram = this.getCurrentProgram();
+        //Program currentProgram = this.getCurrentProgram();
         if (currentProgram == null) {
             this.updateRichPresence(null, null);
             return;
         }
+        
+        String desc;
+		Project activeProject = this.getTool().getProject();
+		RepositoryAdapter repository = activeProject.getRepository();
+		
+		if (repository != null) {
+			if (repository.isConnected()) {
+				desc = "Connected to Ghidra Server";
+			}
+			else {
+				desc = "Working Offline";
+			}
+		} else {
+			desc = "Working Offline";
+		}
+        String status = "File: " + this.getCurrentProgram().getName();
 
-        String desc = this.getCurrentProgram().getName();
+        //String desc = this.getCurrentProgram().getName();
 
-        String status = null;
-        if (this.getTool().getToolName().equals("CodeBrowser")) {// current function name
-            Address currentAddress = this.currentLocation.getAddress();
-            if (currentAddress != null) {
-                FunctionManager functionManager = currentProgram.getFunctionManager();
-                if (functionManager != null) {
-                    Function currentFunc = functionManager.getFunctionContaining(currentAddress);
-                    if (currentFunc != null) {
-                        long offset = this.currentLocation.getAddress().getOffset();
-                        status = currentFunc.getName() + " + 0x" + Long.toHexString(offset);
-                    }
-                }
-            }
-        }
+        //String status = null;
+        //if (this.getTool().getToolName().equals("CodeBrowser")) {// current function name
+        //    Address currentAddress = this.currentLocation.getAddress();
+        //    if (currentAddress != null) {
+        //        FunctionManager functionManager = currentProgram.getFunctionManager();
+        //        if (functionManager != null) {
+        //            Function currentFunc = functionManager.getFunctionContaining(currentAddress);
+        //            if (currentFunc != null) {
+        //                long offset = this.currentLocation.getAddress().getOffset() - currentFunc.getEntryPoint().getOffset();
+        //                status = currentFunc.getName() + " + 0x" + Long.toHexString(offset);
+        //            }
+        //        }
+        //    }
+        //}
 
         this.updateRichPresence(desc, status);
     }
